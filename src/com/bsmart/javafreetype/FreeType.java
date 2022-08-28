@@ -45,7 +45,8 @@ public final class FreeType {
 
     private static final MemorySession MEMORY = MemorySession.openShared();
 
-    private static MethodHandle CreateLibrary, DestroyLibrary, CreateFace, GetNumFaceGlyphs, GetFaceAscender;
+    private static MethodHandle CreateLibrary, DestroyLibrary, CreateFace, GetNumFaceGlyphs, GetFaceAscender, SetCharSize, SetPixelSizes, GetCharIndex,
+            LoadGlyph, RenderGlyph, GetGlyphHorizontalAdvance, GetGlyphVerticalAdvance, GetNumGlyphBitmapRows, GetGlyphBitmapRows, GetGlyphBitmapWidth, GetGlyphBitmap;
 
     private FreeType() {}
 
@@ -98,6 +99,16 @@ public final class FreeType {
         CreateFace = linker.downcallHandle(freetype.lookup("CreateFace").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG, ADDRESS, JAVA_INT));
         GetNumFaceGlyphs = linker.downcallHandle(freetype.lookup("GetNumFaceGlyphs").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
         GetFaceAscender = linker.downcallHandle(freetype.lookup("GetFaceAscender").orElseThrow(), FunctionDescriptor.of(JAVA_SHORT, JAVA_LONG));
+        SetCharSize = linker.downcallHandle(freetype.lookup("SetCharSize").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT));
+        SetPixelSizes = linker.downcallHandle(freetype.lookup("SetPixelSizes").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_INT, JAVA_INT));
+        GetCharIndex = linker.downcallHandle(freetype.lookup("GetCharIndex").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_CHAR));
+        LoadGlyph = linker.downcallHandle(freetype.lookup("LoadGlyph").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_INT, JAVA_INT));
+        RenderGlyph = linker.downcallHandle(freetype.lookup("RenderGlyph").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_INT));
+        GetGlyphHorizontalAdvance = linker.downcallHandle(freetype.lookup("GetGlyphHorizontalAdvance").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        GetGlyphVerticalAdvance = linker.downcallHandle(freetype.lookup("GetGlyphVerticalAdvance").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        GetNumGlyphBitmapRows = linker.downcallHandle(freetype.lookup("GetNumFaceGlyphs").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        GetGlyphBitmapWidth = linker.downcallHandle(freetype.lookup("GetGlyphBitmapWidth").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        GetGlyphBitmap = linker.downcallHandle(freetype.lookup("GetGlyphBitmap").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG));
     }
 
 
@@ -137,6 +148,86 @@ public final class FreeType {
     public static short GetFaceAscender(long face) {
         try {
             return (short) GetFaceAscender.invokeExact(face);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int SetCharSize(long face, int width, int height, int horizontalRes, int verticalRes) {
+        try {
+            return (int) SetCharSize.invokeExact(face, width, height, horizontalRes, verticalRes);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int SetPixelSizes(long face, int width, int height) {
+        try {
+            return (int) SetPixelSizes.invokeExact(face, width, height);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int GetCharIndex(long face, char codepoint) {
+        try {
+            return (int) GetCharIndex.invokeExact(face, codepoint);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static long LoadGlyph(long face, int glyphIndex, int flags) {
+        try {
+            return (long) LoadGlyph.invokeExact(face, glyphIndex, flags);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static long RenderGlyph(long face, int flags) {
+        try {
+            return (long) RenderGlyph.invokeExact(face, flags);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int GetGlyphHorizontalAdvance(long face) {
+        try {
+            return (int) GetGlyphHorizontalAdvance.invokeExact(face);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int GetGlyphVerticalAdvance(long face) {
+        try {
+            return (int) GetGlyphVerticalAdvance.invokeExact(face);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int GetNumGlyphBitmapRows(long face) {
+        try {
+            return (int) GetNumGlyphBitmapRows.invokeExact(face);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int GetGlyphBitmapWidth(long face) {
+        try {
+            return (int) GetGlyphBitmapWidth.invokeExact(face);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static long GetGlyphBitmap(long face) {
+        try {
+            return (int) GetGlyphBitmap.invokeExact(face);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
