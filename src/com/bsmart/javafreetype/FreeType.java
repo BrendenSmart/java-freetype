@@ -1,9 +1,7 @@
-package com.bsmart.freetypejava;
+package com.bsmart.javafreetype;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OptionalDataException;
 import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
 import java.nio.file.FileAlreadyExistsException;
@@ -12,10 +10,11 @@ import java.nio.file.Path;
 
 import static java.lang.foreign.ValueLayout.*;
 
+
 /*
  * MIT License
  *
- * Copyright (c) 2022 BrendenSmart
+ * Copyright (c) 2022 Brenden Smart
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -40,7 +39,6 @@ import static java.lang.foreign.ValueLayout.*;
  * @author Brenden Smart
  */
 public final class FreeType {
-
 
     private static Linker linker;
 
@@ -90,9 +88,5 @@ public final class FreeType {
     private static void initIDs() {
 
     }
-
-    public static void test() {}
-
-
 
 }
