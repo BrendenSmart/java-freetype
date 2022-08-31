@@ -1,6 +1,4 @@
-package main;
-
-import com.bsmart.javafreetype.FreeType;
+package jftmain;
 
 import static com.bsmart.javafreetype.FreeType.*;
 

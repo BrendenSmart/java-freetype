@@ -220,7 +220,13 @@ public final class FreeType {
         }
     }
 
-    public static void test() {}
+    public static long FT_Init_FreeType() {
+        return 0;
+    }
+
+    public static void FT_Done_FreeType(long library) {
+
+    }
 
 
 }
