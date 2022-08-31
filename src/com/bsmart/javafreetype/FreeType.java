@@ -24,13 +24,15 @@
 
 package com.bsmart.javafreetype;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
+import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static java.lang.foreign.ValueLayout.*;
 
@@ -48,6 +50,9 @@ public final class FreeType {
     private static MethodHandle CreateLibrary, DestroyLibrary, CreateFace, GetNumFaceGlyphs, GetFaceAscender, SetCharSize, SetPixelSizes, GetCharIndex,
             LoadGlyph, RenderGlyph, GetGlyphHorizontalAdvance, GetGlyphVerticalAdvance, GetNumGlyphBitmapRows, GetGlyphBitmapRows, GetGlyphBitmapWidth, GetGlyphBitmap;
 
+
+    private static boolean isRelease;
+
     private FreeType() {}
 
     static {
@@ -57,39 +62,21 @@ public final class FreeType {
 
     @SuppressWarnings("SpellCheckingInspection")
     private static void loadLibrary() {
-        final String libraryResource = FreeType.class.getResource("/natives/windows/javafreetype.dll").getPath().replace("%20", " ");
 
-
-        final String userHome = System.getProperty("user.home");
-
-        Path folder = Path.of(userHome + "/javafreetype");
-
-        Path tempLibrary = Path.of(userHome + "/javafreetype/javafreetype.dll");
-
+        URL url = FreeType.class.getResource("/javafreetype/natives/windows/javafreetype.dll");
         try {
-            Files.deleteIfExists(tempLibrary);
-            Files.deleteIfExists(folder);
+            File tempDir = Files.createTempDirectory("javafreetype").toFile();
+            tempDir.deleteOnExit();
+            File nativeLibTmpFile = new File(tempDir, "javafreetype.dll");
+            nativeLibTmpFile.deleteOnExit();
+            try (InputStream in = url.openStream()) {
+                Files.copy(in, nativeLibTmpFile.toPath());
+            }
+            freetype = SymbolLookup.libraryLookup(nativeLibTmpFile.toPath(), MemorySession.openShared());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
-        try {
-            Files.createDirectory(folder);
-        } catch (FileAlreadyExistsException ignore) {}
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            Files.copy(new FileInputStream(libraryResource), tempLibrary);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        folder.toFile().deleteOnExit();
-        tempLibrary.toFile().deleteOnExit();
-
-        freetype = SymbolLookup.libraryLookup(tempLibrary, MemorySession.openShared());
         linker = Linker.nativeLinker();
     }
 
@@ -177,17 +164,17 @@ public final class FreeType {
         }
     }
 
-    public static long LoadGlyph(long face, int glyphIndex, int flags) {
+    public static int LoadGlyph(long face, int glyphIndex, int flags) {
         try {
-            return (long) LoadGlyph.invokeExact(face, glyphIndex, flags);
+            return (int) LoadGlyph.invokeExact(face, glyphIndex, flags);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static long RenderGlyph(long face, int flags) {
+    public static int RenderGlyph(long face, int flags) {
         try {
-            return (long) RenderGlyph.invokeExact(face, flags);
+            return (int) RenderGlyph.invokeExact(face, flags);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
@@ -227,10 +214,13 @@ public final class FreeType {
 
     public static long GetGlyphBitmap(long face) {
         try {
-            return (int) GetGlyphBitmap.invokeExact(face);
+            return (long) GetGlyphBitmap.invokeExact(face);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
+
+    public static void test() {}
+
 
 }
