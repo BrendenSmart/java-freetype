@@ -28,11 +28,7 @@ import java.io.*;
 import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
 import java.net.URL;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import static java.lang.foreign.ValueLayout.*;
 
