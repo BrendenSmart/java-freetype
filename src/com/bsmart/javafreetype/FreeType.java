@@ -44,10 +44,9 @@ public final class FreeType {
     private static final MemorySession MEMORY = MemorySession.openShared();
 
     private static MethodHandle CreateLibrary, DestroyLibrary, CreateFace, GetNumFaceGlyphs, GetFaceAscender, SetCharSize, SetPixelSizes, GetCharIndex,
-            LoadGlyph, RenderGlyph, GetGlyphHorizontalAdvance, GetGlyphVerticalAdvance, GetNumGlyphBitmapRows, GetGlyphBitmapRows, GetGlyphBitmapWidth, GetGlyphBitmap;
+            LoadGlyph, RenderGlyph, GetGlyphHorizontalAdvance, GetGlyphVerticalAdvance, GetNumGlyphBitmapRows, GetGlyphBitmapRows, GetGlyphBitmapWidth, GetGlyphBitmap,
+    FT_Init_FreeType, FT_Done_FreeType, FT_New_Face, FT_Done_Face;
 
-
-    private static boolean isRelease;
 
     private FreeType() {}
 
@@ -92,6 +91,10 @@ public final class FreeType {
         GetNumGlyphBitmapRows = linker.downcallHandle(freetype.lookup("GetNumFaceGlyphs").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
         GetGlyphBitmapWidth = linker.downcallHandle(freetype.lookup("GetGlyphBitmapWidth").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
         GetGlyphBitmap = linker.downcallHandle(freetype.lookup("GetGlyphBitmap").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG));
+        FT_Init_FreeType = linker.downcallHandle(freetype.lookup("nFT_Init_FreeType").orElseThrow(), FunctionDescriptor.of(JAVA_LONG));
+        FT_Done_FreeType = linker.downcallHandle(freetype.lookup("nFT_Done_FreeType").orElseThrow(), FunctionDescriptor.ofVoid());
+        FT_New_Face = linker.downcallHandle(freetype.lookup("nFT_New_Face").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG, ADDRESS, JAVA_INT));
+        FT_Done_Face = linker.downcallHandle(freetype.lookup("nFT_Done_Face").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG));
     }
 
 
@@ -217,11 +220,35 @@ public final class FreeType {
     }
 
     public static long FT_Init_FreeType() {
-        return 0;
+        try {
+            return (long) FT_Init_FreeType.invokeExact();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void FT_Done_FreeType(long library) {
+        try {
+            FT_Done_FreeType.invokeExact(library);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    public static long FT_New_Face(long library, MemoryAddress filepath, int index) {
+        try {
+            return (long) FT_New_Face.invokeExact(library, filepath, index);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void FT_Done_Face(long face) {
+        try {
+            FT_Done_Face.invokeExact(face);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
