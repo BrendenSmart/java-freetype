@@ -37,6 +37,71 @@ import static java.lang.foreign.ValueLayout.*;
  */
 public final class FreeType {
 
+
+    public static final long FT_FACE_FLAG_SCALABLE = (1L << 0);
+
+    public static final long FT_FACE_FLAG_FIXED_SIZES = (1L << 1);
+
+    public static final long FT_FACE_FLAG_FIXED_WIDTH = (1L << 2);
+
+    public static final long FT_FACE_FLAG_SFNT = (1L << 3);
+
+    public static final long FT_FACE_FLAG_HORIZONTAL = (1L << 4);
+
+    public static final long FT_FACE_FLAG_VERTICAL = (1L << 5);
+
+    public static final long FT_FACE_FLAG_KERNING = (1L << 6);
+
+    public static final long FT_FACE_FLAG_FAST_GLYPHS = (1L << 7);
+
+    public static final long FT_FACE_FLAG_MULTIPLE_MASTERS = (1L << 8);
+
+    public static final long FT_FACE_FLAG_GLYPH_NAMES = (1L << 9);
+
+    public static final long FT_FACE_FLAG_EXTERNAL_STREAM = (1L << 10);
+
+    public static final long FT_FACE_FLAG_HINTER = (1L << 11);
+
+    public static final long FT_FACE_FLAG_CID_KEYED = (1L << 12);
+
+    public static final long FT_FACE_FLAG_TRICKY = (1L << 13);
+
+    public static final long FT_FACE_FLAG_COLOR = (1L << 14);
+
+    public static final long FT_LOAD_DEFAULT = 0x0;
+
+    public static final long FT_LOAD_NO_SCALE = (1L << 0);
+
+    public static final long FT_LOAD_NO_HINTING = (1L << 1);
+
+    public static final long FT_LOAD_RENDER = (1L << 2);
+
+    public static final long FT_LOAD_NO_BITMAP = (1L << 3);
+
+    public static final long FT_LOAD_VERTICAL_LAYOUT = (1L << 4);
+
+    public static final long FT_LOAD_FORCE_AUTOHINT = (1L << 5);
+
+    public static final long FT_LOAD_CROP_BITMAP = (1L << 6);
+
+    public static final long FT_LOAD_PEDANTIC = (1L << 7);
+
+    public static final long FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH = (1L << 9);
+
+    public static final long FT_LOAD_NO_RECURSE = (1L << 10);
+
+    public static final long FT_LOAD_IGNORE_TRANSFORM = (1L << 11);
+
+    public static final long FT_LOAD_MONOCHROME = (1L << 12);
+
+    public static final long FT_LOAD_LINEAR_DESIGN = (1L << 13);
+
+    public static final long FT_LOAD_NO_AUTOHINT = (1L << 15);
+
+    public static final long FT_LOAD_COLOR = (1L << 20);
+
+    public static final long FT_LOAD_COMPUTE_METRICS = (1L << 21);
+
     private static Linker linker;
 
     private static SymbolLookup freetype;
@@ -45,7 +110,8 @@ public final class FreeType {
 
     private static MethodHandle CreateLibrary, DestroyLibrary, CreateFace, GetNumFaceGlyphs, GetFaceAscender, SetCharSize, SetPixelSizes, GetCharIndex,
             LoadGlyph, RenderGlyph, GetGlyphHorizontalAdvance, GetGlyphVerticalAdvance, GetNumGlyphBitmapRows, GetGlyphBitmapRows, GetGlyphBitmapWidth, GetGlyphBitmap,
-    FT_Init_FreeType, FT_Done_FreeType, FT_New_Face, FT_Done_Face;
+    FT_Init_FreeType, FT_Done_FreeType, FT_New_Face, FT_Done_Face, FT_Library_Version_Major, FT_Library_Version_Minor, FT_Library_Version_Patch,
+    FT_Library_Version, FT_Set_Pixel_Sizes, FT_Load_Char;
 
 
     private FreeType() {}
@@ -92,9 +158,16 @@ public final class FreeType {
         GetGlyphBitmapWidth = linker.downcallHandle(freetype.lookup("GetGlyphBitmapWidth").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
         GetGlyphBitmap = linker.downcallHandle(freetype.lookup("GetGlyphBitmap").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG));
         FT_Init_FreeType = linker.downcallHandle(freetype.lookup("nFT_Init_FreeType").orElseThrow(), FunctionDescriptor.of(JAVA_LONG));
-        FT_Done_FreeType = linker.downcallHandle(freetype.lookup("nFT_Done_FreeType").orElseThrow(), FunctionDescriptor.ofVoid());
+        FT_Done_FreeType = linker.downcallHandle(freetype.lookup("nFT_Done_FreeType").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG));
         FT_New_Face = linker.downcallHandle(freetype.lookup("nFT_New_Face").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG, ADDRESS, JAVA_INT));
         FT_Done_Face = linker.downcallHandle(freetype.lookup("nFT_Done_Face").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG));
+        FT_Library_Version_Major = linker.downcallHandle(freetype.lookup("nFT_Library_Version_Major").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        FT_Library_Version_Minor = linker.downcallHandle(freetype.lookup("nFT_Library_Version_Minor").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        FT_Library_Version_Patch = linker.downcallHandle(freetype.lookup("nFT_Library_Version_Patch").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        FT_Library_Version = linker.downcallHandle(freetype.lookup("nFT_Library_Version").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, ADDRESS, ADDRESS, ADDRESS));
+        FT_Set_Pixel_Sizes = linker.downcallHandle(freetype.lookup("nFT_Set_Pixel_Sizes").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, JAVA_INT, JAVA_INT));
+        FT_Load_Char = linker.downcallHandle(freetype.lookup("nFT_Load_Char").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, JAVA_LONG, JAVA_INT));
+
     }
 
 
@@ -235,7 +308,7 @@ public final class FreeType {
         }
     }
 
-    public static long FT_New_Face(long library, MemoryAddress filepath, int index) {
+    public static long FT_New_Face(long library, Addressable filepath, int index) {
         try {
             return (long) FT_New_Face.invokeExact(library, filepath, index);
         } catch (Throwable e) {
@@ -251,5 +324,52 @@ public final class FreeType {
         }
     }
 
+    public static int FT_Library_Version_Major(long library) {
+        try {
+            return (int) FT_Library_Version_Major.invokeExact(library);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int FT_Library_Version_Minor(long library) {
+        try {
+            return (int) FT_Library_Version_Minor.invokeExact(library);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int FT_Library_Version_Patch(long library) {
+        try {
+            return (int) FT_Library_Version_Patch.invokeExact(library);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void FT_Library_Version(long library, Addressable major, Addressable minor, Addressable patch) {
+        try {
+            FT_Library_Version.invokeExact(library, major, minor, patch);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void FT_Set_Pixel_Sizes(long face, int width, int height) {
+        try {
+            FT_Set_Pixel_Sizes.invokeExact(face, width, height);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void FT_Load_Char(long face, long codepoint, int flags) {
+        try {
+            FT_Load_Char.invokeExact(face, codepoint, flags);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }
