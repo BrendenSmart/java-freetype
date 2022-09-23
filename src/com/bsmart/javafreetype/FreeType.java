@@ -37,7 +37,6 @@ import static java.lang.foreign.ValueLayout.*;
  */
 public final class FreeType {
 
-
     public static final long FT_FACE_FLAG_SCALABLE = (1L << 0);
 
     public static final long FT_FACE_FLAG_FIXED_SIZES = (1L << 1);
@@ -111,7 +110,7 @@ public final class FreeType {
     private static MethodHandle CreateLibrary, DestroyLibrary, CreateFace, GetNumFaceGlyphs, GetFaceAscender, SetCharSize, SetPixelSizes, GetCharIndex,
             LoadGlyph, RenderGlyph, GetGlyphHorizontalAdvance, GetGlyphVerticalAdvance, GetNumGlyphBitmapRows, GetGlyphBitmapRows, GetGlyphBitmapWidth, GetGlyphBitmap,
     FT_Init_FreeType, FT_Done_FreeType, FT_New_Face, FT_Done_Face, FT_Library_Version_Major, FT_Library_Version_Minor, FT_Library_Version_Patch,
-    FT_Library_Version, FT_Set_Pixel_Sizes, FT_Load_Char;
+            FT_Library_Version, FT_Set_Pixel_Sizes, FT_Load_Char;
 
 
     private FreeType() {}
@@ -158,7 +157,7 @@ public final class FreeType {
         GetGlyphBitmapWidth = linker.downcallHandle(freetype.lookup("GetGlyphBitmapWidth").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
         GetGlyphBitmap = linker.downcallHandle(freetype.lookup("GetGlyphBitmap").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG));
         FT_Init_FreeType = linker.downcallHandle(freetype.lookup("nFT_Init_FreeType").orElseThrow(), FunctionDescriptor.of(JAVA_LONG));
-        FT_Done_FreeType = linker.downcallHandle(freetype.lookup("nFT_Done_FreeType").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG));
+        FT_Done_FreeType = linker.downcallHandle(freetype.lookup("nFT_Done_FreeType").orElseThrow(), FunctionDescriptor.ofVoid());
         FT_New_Face = linker.downcallHandle(freetype.lookup("nFT_New_Face").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG, ADDRESS, JAVA_INT));
         FT_Done_Face = linker.downcallHandle(freetype.lookup("nFT_Done_Face").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG));
         FT_Library_Version_Major = linker.downcallHandle(freetype.lookup("nFT_Library_Version_Major").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
@@ -167,7 +166,6 @@ public final class FreeType {
         FT_Library_Version = linker.downcallHandle(freetype.lookup("nFT_Library_Version").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, ADDRESS, ADDRESS, ADDRESS));
         FT_Set_Pixel_Sizes = linker.downcallHandle(freetype.lookup("nFT_Set_Pixel_Sizes").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, JAVA_INT, JAVA_INT));
         FT_Load_Char = linker.downcallHandle(freetype.lookup("nFT_Load_Char").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, JAVA_LONG, JAVA_INT));
-
     }
 
 
@@ -308,7 +306,7 @@ public final class FreeType {
         }
     }
 
-    public static long FT_New_Face(long library, Addressable filepath, int index) {
+    public static long FT_New_Face(long library, MemoryAddress filepath, int index) {
         try {
             return (long) FT_New_Face.invokeExact(library, filepath, index);
         } catch (Throwable e) {
