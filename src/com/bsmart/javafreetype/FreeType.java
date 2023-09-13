@@ -105,7 +105,7 @@ public final class FreeType {
 
     private static SymbolLookup freetype;
 
-    private static final MemorySession MEMORY = MemorySession.openShared();
+    private static final SegmentAllocator MEMORY = SegmentAllocator.nativeAllocator(SegmentScope.global());
 
     private static MethodHandle CreateLibrary, DestroyLibrary, CreateFace, GetNumFaceGlyphs, GetFaceAscender, SetCharSize, SetPixelSizes, GetCharIndex,
             LoadGlyph, RenderGlyph, GetGlyphHorizontalAdvance, GetGlyphVerticalAdvance, GetNumGlyphBitmapRows, GetGlyphBitmapRows, GetGlyphBitmapWidth, GetGlyphBitmap,
@@ -132,7 +132,7 @@ public final class FreeType {
             try (InputStream in = url.openStream()) {
                 Files.copy(in, nativeLibTmpFile.toPath());
             }
-            freetype = SymbolLookup.libraryLookup(nativeLibTmpFile.toPath(), MemorySession.openShared());
+            freetype = SymbolLookup.libraryLookup(nativeLibTmpFile.toPath(), SegmentScope.global());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -141,33 +141,33 @@ public final class FreeType {
     }
 
     private static void initIDs() {
-        CreateLibrary = linker.downcallHandle(freetype.lookup("CreateLibrary").orElseThrow(), FunctionDescriptor.of(JAVA_LONG));
-        DestroyLibrary = linker.downcallHandle(freetype.lookup("DestroyLibrary").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
-        CreateFace = linker.downcallHandle(freetype.lookup("CreateFace").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG, ADDRESS, JAVA_INT));
-        GetNumFaceGlyphs = linker.downcallHandle(freetype.lookup("GetNumFaceGlyphs").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
-        GetFaceAscender = linker.downcallHandle(freetype.lookup("GetFaceAscender").orElseThrow(), FunctionDescriptor.of(JAVA_SHORT, JAVA_LONG));
-        SetCharSize = linker.downcallHandle(freetype.lookup("SetCharSize").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT));
-        SetPixelSizes = linker.downcallHandle(freetype.lookup("SetPixelSizes").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_INT, JAVA_INT));
-        GetCharIndex = linker.downcallHandle(freetype.lookup("GetCharIndex").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_CHAR));
-        LoadGlyph = linker.downcallHandle(freetype.lookup("LoadGlyph").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_INT, JAVA_INT));
-        RenderGlyph = linker.downcallHandle(freetype.lookup("RenderGlyph").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_INT));
-        GetGlyphHorizontalAdvance = linker.downcallHandle(freetype.lookup("GetGlyphHorizontalAdvance").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
-        GetGlyphVerticalAdvance = linker.downcallHandle(freetype.lookup("GetGlyphVerticalAdvance").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
-        GetNumGlyphBitmapRows = linker.downcallHandle(freetype.lookup("GetNumFaceGlyphs").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
-        GetGlyphBitmapWidth = linker.downcallHandle(freetype.lookup("GetGlyphBitmapWidth").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
-        GetGlyphBitmap = linker.downcallHandle(freetype.lookup("GetGlyphBitmap").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG));
-        FT_Init_FreeType = linker.downcallHandle(freetype.lookup("nFT_Init_FreeType").orElseThrow(), FunctionDescriptor.of(JAVA_LONG));
-        FT_Done_FreeType = linker.downcallHandle(freetype.lookup("nFT_Done_FreeType").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG));
-        FT_New_Face = linker.downcallHandle(freetype.lookup("nFT_New_Face").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG, ADDRESS, JAVA_INT));
-        FT_Done_Face = linker.downcallHandle(freetype.lookup("nFT_Done_Face").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG));
-        FT_Library_Version_Major = linker.downcallHandle(freetype.lookup("nFT_Library_Version_Major").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
-        FT_Library_Version_Minor = linker.downcallHandle(freetype.lookup("nFT_Library_Version_Minor").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
-        FT_Library_Version_Patch = linker.downcallHandle(freetype.lookup("nFT_Library_Version_Patch").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
-        FT_Library_Version = linker.downcallHandle(freetype.lookup("nFT_Library_Version").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, ADDRESS, ADDRESS, ADDRESS));
-        FT_Set_Pixel_Sizes = linker.downcallHandle(freetype.lookup("nFT_Set_Pixel_Sizes").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, JAVA_INT, JAVA_INT));
-        FT_Load_Char = linker.downcallHandle(freetype.lookup("nFT_Load_Char").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, JAVA_CHAR, JAVA_INT));
-        FT_Get_Bitmap = linker.downcallHandle(freetype.lookup("nFT_Get_Bitmap").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG));
-        FT_Get_Glyph = linker.downcallHandle(freetype.lookup("nFT_Get_Glyph").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG));
+        CreateLibrary = linker.downcallHandle(freetype.find("CreateLibrary").orElseThrow(), FunctionDescriptor.of(JAVA_LONG));
+        DestroyLibrary = linker.downcallHandle(freetype.find("DestroyLibrary").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        CreateFace = linker.downcallHandle(freetype.find("CreateFace").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG, ADDRESS, JAVA_INT));
+        GetNumFaceGlyphs = linker.downcallHandle(freetype.find("GetNumFaceGlyphs").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        GetFaceAscender = linker.downcallHandle(freetype.find("GetFaceAscender").orElseThrow(), FunctionDescriptor.of(JAVA_SHORT, JAVA_LONG));
+        SetCharSize = linker.downcallHandle(freetype.find("SetCharSize").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT));
+        SetPixelSizes = linker.downcallHandle(freetype.find("SetPixelSizes").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_INT, JAVA_INT));
+        GetCharIndex = linker.downcallHandle(freetype.find("GetCharIndex").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_CHAR));
+        LoadGlyph = linker.downcallHandle(freetype.find("LoadGlyph").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_INT, JAVA_INT));
+        RenderGlyph = linker.downcallHandle(freetype.find("RenderGlyph").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_INT));
+        GetGlyphHorizontalAdvance = linker.downcallHandle(freetype.find("GetGlyphHorizontalAdvance").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        GetGlyphVerticalAdvance = linker.downcallHandle(freetype.find("GetGlyphVerticalAdvance").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        GetNumGlyphBitmapRows = linker.downcallHandle(freetype.find("GetNumFaceGlyphs").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        GetGlyphBitmapWidth = linker.downcallHandle(freetype.find("GetGlyphBitmapWidth").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        GetGlyphBitmap = linker.downcallHandle(freetype.find("GetGlyphBitmap").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG));
+        FT_Init_FreeType = linker.downcallHandle(freetype.find("nFT_Init_FreeType").orElseThrow(), FunctionDescriptor.of(JAVA_LONG));
+        FT_Done_FreeType = linker.downcallHandle(freetype.find("nFT_Done_FreeType").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG));
+        FT_New_Face = linker.downcallHandle(freetype.find("nFT_New_Face").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG, ADDRESS, JAVA_INT));
+        FT_Done_Face = linker.downcallHandle(freetype.find("nFT_Done_Face").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG));
+        FT_Library_Version_Major = linker.downcallHandle(freetype.find("nFT_Library_Version_Major").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        FT_Library_Version_Minor = linker.downcallHandle(freetype.find("nFT_Library_Version_Minor").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        FT_Library_Version_Patch = linker.downcallHandle(freetype.find("nFT_Library_Version_Patch").orElseThrow(), FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+        FT_Library_Version = linker.downcallHandle(freetype.find("nFT_Library_Version").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, ADDRESS, ADDRESS, ADDRESS));
+        FT_Set_Pixel_Sizes = linker.downcallHandle(freetype.find("nFT_Set_Pixel_Sizes").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, JAVA_INT, JAVA_INT));
+        FT_Load_Char = linker.downcallHandle(freetype.find("nFT_Load_Char").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, JAVA_CHAR, JAVA_INT));
+        //FT_Get_Bitmap = linker.downcallHandle(freetype.find("nFT_Get_Bitmap").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG));
+        //FT_Get_Glyph = linker.downcallHandle(freetype.find("nFT_Get_Glyph").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG));
     }
 
 
@@ -190,7 +190,7 @@ public final class FreeType {
     public static long CreateFace(long library, String filepath, int index) {
         MemorySegment path = MEMORY.allocateUtf8String(filepath);
         try {
-            return (long) CreateFace.invokeExact(library, (Addressable) path, index);
+            return (long) CreateFace.invokeExact(library, path, index);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
@@ -308,7 +308,7 @@ public final class FreeType {
         }
     }
 
-    public static long FT_New_Face(long library, Addressable filepath, int index) {
+    public static long FT_New_Face(long library, MemorySegment filepath, int index) {
         try {
             return (long) FT_New_Face.invokeExact(library, filepath, index);
         } catch (Throwable e) {
@@ -348,7 +348,7 @@ public final class FreeType {
         }
     }
 
-    public static void FT_Library_Version(long library, Addressable major, Addressable minor, Addressable patch) {
+    public static void FT_Library_Version(long library, MemorySegment major, MemorySegment minor, MemorySegment patch) {
         try {
             FT_Library_Version.invokeExact(library, major, minor, patch);
         } catch (Throwable e) {
