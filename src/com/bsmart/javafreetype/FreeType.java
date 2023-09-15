@@ -166,8 +166,7 @@ public final class FreeType {
         FT_Library_Version = linker.downcallHandle(freetype.find("nFT_Library_Version").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, ADDRESS, ADDRESS, ADDRESS));
         FT_Set_Pixel_Sizes = linker.downcallHandle(freetype.find("nFT_Set_Pixel_Sizes").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, JAVA_INT, JAVA_INT));
         FT_Load_Char = linker.downcallHandle(freetype.find("nFT_Load_Char").orElseThrow(), FunctionDescriptor.ofVoid(JAVA_LONG, JAVA_CHAR, JAVA_INT));
-        //FT_Get_Bitmap = linker.downcallHandle(freetype.find("nFT_Get_Bitmap").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG));
-        //FT_Get_Glyph = linker.downcallHandle(freetype.find("nFT_Get_Glyph").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG));
+        FT_Get_Glyph = linker.downcallHandle(freetype.find("nFT_Get_Glyph").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG));
     }
 
 

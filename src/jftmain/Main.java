@@ -7,13 +7,17 @@ import java.lang.foreign.SegmentScope;
 import static java.lang.foreign.ValueLayout.*;
 import static com.bsmart.javafreetype.FreeType.*;
 
-
+// Replace memorysegments with longs because memorysegments suck
 public class Main {
 
     public static void main(String[] args) {
+        System.out.println("Hola bueno dia");
         long library = FT_Init_FreeType();
         SegmentScope scope = SegmentScope.global();
+        SegmentAllocator.nativeAllocator(scope).allocateUtf8String("C:\\Windows\\Fonts\\Arial.ttf");
+        System.out.println("Hola bueno noche");
         long face = FT_New_Face(library, SegmentAllocator.nativeAllocator(scope).allocateUtf8String("C:\\Windows\\Fonts\\Arial.ttf"), 0);
+
         System.out.println(FT_Library_Version_Major(library));
         System.out.println(FT_Library_Version_Minor(library));
         System.out.println(FT_Library_Version_Patch(library));
